@@ -34,6 +34,20 @@ describe("Store", () => {
     store.close();
   });
 
+  it("returns the most recent swaps oldest first", () => {
+    const store = new Store(":memory:");
+    store.commitBatch("unichain", 10n, [
+      ev({ chain: "unichain", name: "Swap", orderId: null, tx: "0x0a", block: 1 }),
+      ev({ chain: "unichain", name: "Swap", orderId: null, tx: "0x0b", block: 2 }),
+      ev({ chain: "unichain", name: "Swap", orderId: null, tx: "0x0c", block: 3 }),
+    ]);
+    assert.deepEqual(
+      store.recentSwaps(2).map((s) => s.tx),
+      ["0x0b", "0x0c"],
+    );
+    store.close();
+  });
+
   it("rolls back a batch that fails part-way", () => {
     const store = new Store(":memory:");
     const bad = { ...created({ tx: "0x02" }), args: undefined as unknown as Record<string, string> };

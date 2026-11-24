@@ -98,6 +98,19 @@ async function route(deps: ApiDeps, req: IncomingMessage): Promise<unknown> {
     const attempts = allOrders(deps).flatMap((o) => o.attempts);
     return { pollMs: deps.config.pollMs, ...summarise(attempts) };
   }
+  if (path === "/api/swaps") {
+    const limit = Number(url.searchParams.get("limit") ?? "200");
+    if (!Number.isInteger(limit) || limit < 1 || limit > 2000) throw new HttpError(400, "limit must be 1-2000");
+    return deps.store.recentSwaps(limit).map((e) => ({
+      tx: e.tx,
+      block: e.block,
+      blockTs: e.blockTs,
+      sqrtPriceX96: e.args["sqrtPriceX96"],
+      tick: e.args["tick"],
+      amount0: e.args["amount0"],
+      amount1: e.args["amount1"],
+    }));
+  }
   if (path === "/api/balances") return balances(deps);
   if (path === "/api/pool") return pool(deps);
   throw new HttpError(404, "not found");

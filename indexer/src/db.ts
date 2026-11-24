@@ -138,6 +138,14 @@ export class Store {
     return rows.map(fromRow);
   }
 
+  /** Most recent swaps on the watched pool, oldest first, for the price chart. */
+  recentSwaps(limit: number): StoredEvent[] {
+    const rows = this.#db
+      .prepare("SELECT * FROM (SELECT * FROM events WHERE name = 'Swap' ORDER BY block DESC, log_index DESC LIMIT ?) ORDER BY block, log_index")
+      .all(limit) as unknown as EventRow[];
+    return rows.map(fromRow);
+  }
+
   /** The Unichain swap with this transaction hash, if indexed. */
   swapByTx(tx: string): StoredEvent | null {
     const row = this.#db
