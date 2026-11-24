@@ -84,4 +84,36 @@ If no `Ping` arrives:
 
 ## Results
 
-_Not run yet._
+Run on 2026-11-24.
+**The gate passed: 10 of 10 loops completed.**
+
+### Deployed contracts
+
+| Contract | Chain | Address |
+|---|---|---|
+| token0 / token1 (test tokens) | Unichain Sepolia | `0xde609E52D9164C227D4F174D6260289bc3E62eC2` / `0xf23147Df55089eA6bA87BF24bb4eEE6f7Cea182b` |
+| Pool (V4, fee 0.3%, tick spacing 60) | Unichain Sepolia | poolId `0xb26c1aaf4752dd394a0d05f246d7adc888e6adacf381744421927241030a54e6` |
+| PoolSwapTest router | Unichain Sepolia | `0xe66dd4f6A29ab1843A39Df47f0D0f9e46F3B858f` |
+| SpikeReactive | Lasna | `0xf23147Df55089eA6bA87BF24bb4eEE6f7Cea182b` |
+| PingReceiver | Unichain Sepolia | `0xfB88d06289EaDD3aE23ef5C7bEF816baFfbf4000` |
+
+SpikeReactive and token1 have the same address on different chains, because the same deployer nonce was used on both.
+
+### Example full loop
+
+- Origin swap: `0xd7a40d5255407b86819e87ba80795483da7d47f74f0df4111da2a172c51a5455` (Unichain Sepolia)
+- Reactive transaction: `0x97e545a778160136488c3d2a072f0ad6bef2f08e9ee540f5e3d6ef97b99734e8` (Lasna)
+- Callback: `0x081686f1d82ce8109847a7c548b9d9fe7d876e8d1a113eb0c9049b6c32b5a4d1` (Unichain Sepolia)
+
+### Latency (block timestamps, whole-second resolution)
+
+- Full loop, from the origin swap to the callback landing on Unichain: **median 2 s, p95 3 s, max 3 s**, over 10 loops.
+- The full loop is measured on one chain's clock, so this number is reliable.
+
+### Finding: per-leg numbers need a wall-clock watcher
+
+The origin-to-reactive leg showed **-1 s** in 8 of 10 loops.
+A Lasna block cannot really come before the Unichain block it reacts to.
+So Lasna's block timestamps run about 1 s behind Unichain's, or the two chains round time differently.
+Block timestamps from two different chains cannot be compared to better than about ±1 s.
+For the leg breakdown on the dashboard, Phase 3's watcher must record the wall-clock time each transaction is first seen, as already planned.
