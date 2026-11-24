@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+/*
+ * Tripwire: a graphite console where the only loud thing is the wire.
+ * Status hues are the dataviz reference status steps; they always travel with a text label.
+ */
+@theme {
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --color-bg: #0b0c0e;
+  --color-panel: #121417;
+  --color-raised: #181b1f;
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-strong: rgb(255 255 255 / 0.14);
+  --color-grid: #22252a;
+
+  --color-ink: #e9ebee;
+  --color-ink-2: #a7adb5;
+  --color-ink-3: #737a83;
+
+  --color-price: #c3ccd8;
+  --color-wire: #ec835a;
+  --color-pending: #fab219;
+  --color-good: #0ca30c;
+  --color-bad: #d03b3b;
+
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "tnum";
+}
+
+::selection {
+  background: rgb(236 131 90 / 0.35);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-wire);
+  outline-offset: 2px;
+}
+
+/* A live dot that breathes; still for people who ask for less motion. */
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.breathe {
+  animation: breathe 1.6s ease-in-out infinite;
+}
+
+@keyframes wire-snap {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.snap {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wire-snap 420ms var(--ease-out-quart) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breathe,
+  .snap {
+    animation: none;
+  }
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
