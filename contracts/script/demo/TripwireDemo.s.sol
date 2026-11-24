@@ -13,7 +13,8 @@ import {TripwireVault} from "../../src/TripwireVault.sol";
 import {SpikeConfig} from "../spike/SpikeConfig.sol";
 
 /// @notice Unichain Sepolia: drives the deployed Tripwire demo pool.
-/// @dev Env: DEMO_ACTION = "order" | "crash" | "recover" | "order+crash" (default "order+crash").
+/// @dev Env: DEMO_ACTION = "order" | "crash" | "recover" | "order+crash" | "cycle" (default "order+crash").
+///      "cycle" is recover, then order, then crash: a fresh full loop from wherever the price was left.
 ///      "order" places a stop-loss selling 1 token0 if the price falls to tick -60, with a 0.95 token1 minimum.
 ///      "crash" sells 5 token0 into the pool (price to about tick -100); "recover" sells 5 token1 back.
 contract TripwireDemo is SpikeConfig {
@@ -32,12 +33,14 @@ contract TripwireDemo is SpikeConfig {
         PoolKey memory key = vault.getPoolKey(poolId);
 
         bytes32 a = keccak256(bytes(action));
-        bool doOrder = a == keccak256("order") || a == keccak256("order+crash");
-        bool doCrash = a == keccak256("crash") || a == keccak256("order+crash");
-        bool doRecover = a == keccak256("recover");
+        bool cycle = a == keccak256("cycle");
+        bool doOrder = cycle || a == keccak256("order") || a == keccak256("order+crash");
+        bool doCrash = cycle || a == keccak256("crash") || a == keccak256("order+crash");
+        bool doRecover = cycle || a == keccak256("recover");
         require(doOrder || doCrash || doRecover, "TripwireDemo: unknown DEMO_ACTION");
 
         vm.startBroadcast();
+        if (doRecover) _move(key, false);
         if (doOrder) {
             TestERC20 token0 = TestERC20(Currency.unwrap(key.currency0));
             if (token0.allowance(msg.sender, address(vault)) < ORDER_AMOUNT) {
@@ -49,7 +52,6 @@ contract TripwireDemo is SpikeConfig {
             console.log("created stop-loss order", id);
         }
         if (doCrash) _move(key, true);
-        if (doRecover) _move(key, false);
         vm.stopBroadcast();
     }
 
