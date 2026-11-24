@@ -36,8 +36,12 @@ contract DeployTripwire is SpikeConfig {
     string internal constant OUT_LIVE = "deployments/tripwire.json";
     string internal constant OUT_DRY_RUN = "deployments/tripwire.dry-run.json";
 
+    /// @dev forge-std's DEFAULT_SENDER. Multi-fork scripts keep it as msg.sender unless --sender is passed too.
+    address internal constant FOUNDRY_DEFAULT_SENDER = 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38;
+
     function run() external {
         address deployer = msg.sender;
+        require(deployer != FOUNDRY_DEFAULT_SENDER, "DeployTripwire: pass --sender <deployer address> with --account");
         uint256 reactiveFunding = vm.envOr("TRIPWIRE_REACTIVE_FUNDING", uint256(1 ether));
         uint256 callbackFunding = vm.envOr("TRIPWIRE_CALLBACK_FUNDING", uint256(0.003 ether));
 
