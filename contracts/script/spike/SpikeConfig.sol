@@ -31,9 +31,14 @@ abstract contract SpikeConfig is Script {
         return vm.isContext(VmSafe.ForgeContext.ScriptBroadcast) ? DEPLOYMENTS_LIVE : DEPLOYMENTS_DRY_RUN;
     }
 
+    /// @dev Live addresses win, so simulations of later steps run against what is really deployed. The dry-run
+    ///      file is only a fallback, for chaining simulations before anything is live.
     function _read(string memory key_) internal view returns (bytes memory) {
+        string memory path = DEPLOYMENTS_LIVE;
         // forge-lint: disable-next-line(unsafe-cheatcode)
-        return vm.parseJson(vm.readFile(_deployments()), key_);
+        if (!vm.exists(path) || !vm.keyExistsJson(vm.readFile(path), key_)) path = DEPLOYMENTS_DRY_RUN;
+        // forge-lint: disable-next-line(unsafe-cheatcode)
+        return vm.parseJson(vm.readFile(path), key_);
     }
 
     function _readAddress(string memory key_) internal view returns (address) {

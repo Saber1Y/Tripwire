@@ -6,7 +6,7 @@
 # Foundry
 contracts/out/
 contracts/cache/
-contracts/broadcast/*/*/dry-run/
+contracts/broadcast/
 contracts/deployments/*.dry-run.json
 
 # Node
