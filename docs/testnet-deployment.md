@@ -36,6 +36,18 @@ It was placed with `script/demo/TripwireDemo.s.sol`, which then crashed the pric
 - **Latency from crash to execution: 2 blocks, 2 seconds.**
 - Afterwards, the reactive contract shows the order as Done after 1 attempt.
 
+## Second live order, watched by the indexer
+
+Order #2 was placed with `DEMO_ACTION=cycle`, which moves the price back up, places the order and crashes the price, all in one run.
+The indexer was running at the time:
+
+- Origin swap `0xebe4dab45724dd884e898ec8cc9557a467574162273134c66721372e68b59580`.
+- Reaction on Lasna `0x7c2af0e4300ee7245f51dceaab14659f82d7158035340b8da48ae82577b51c5b`.
+- Execution `0x8bcb51a659cfac5e47d25d7125830af300358b6828f2cf2206ffd6a0e32466d0`.
+- **2 Unichain blocks and 2 s from crash to execution, about 1.6 s wall clock.**
+
+See `docs/latency-methodology.md` for what these numbers mean.
+
 ## Re-running the demo
 
 From `contracts/`:
@@ -50,3 +62,4 @@ forge script script/demo/TripwireDemo.s.sol --rpc-url https://sepolia.unichain.o
 
 The first command moves the price back up.
 The second places a new stop-loss and crashes the price again.
+`DEMO_ACTION=cycle` does both in one run.
