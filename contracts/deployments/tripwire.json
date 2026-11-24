@@ -1,0 +1,7 @@
+{
+  "vault": "0x4F7248ca7Ed3A24E5cD12A2D5fb2C3C360Cd5892",
+  "reactive": "0xd316a363B1AD478341Ba454Ef909703732aE31AE",
+  "poolId": "0x878beda621992383afc41903f08cb47c959a48a908d5913222fa0748975f23e5",
+  "fee": 500,
+  "tickSpacing": 10
+}
