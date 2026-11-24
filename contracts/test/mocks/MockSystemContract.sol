@@ -26,6 +26,15 @@ contract MockSystemContract {
 
     Subscription[] internal _subscriptions;
     CallbackRequest[] internal _callbacks;
+    /// @dev When true, callback requests are only counted, so gas tests measure the caller's own cost rather
+    ///      than this mock's storage writes. Defaults to false because the mock is installed with `vm.etch`,
+    ///      which copies code but runs no initialisers.
+    bool public countOnly;
+    uint256 public callbackRequests;
+
+    function setCountOnly(bool countOnly_) external {
+        countOnly = countOnly_;
+    }
 
     function subscribe(uint256 chainId_, address contract_, uint256 t0_, uint256 t1_, uint256 t2_, uint256 t3_)
         external
@@ -47,6 +56,8 @@ contract MockSystemContract {
 
     // forge-lint: disable-next-line(mixed-case-function)
     function requestCallbackV_1_0(ISystemContract.CallbackConfiguration_V_1_0 memory config_) external {
+        ++callbackRequests;
+        if (countOnly) return;
         _callbacks.push(
             CallbackRequest({
                 requester: msg.sender,
