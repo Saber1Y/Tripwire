@@ -57,14 +57,16 @@ contract DeployTripwire is SpikeConfig {
         });
         PoolId poolId = key.toId();
 
-        // 1. Predict.
+        // 1. Predict. Start blocks are recorded so the indexer knows where to begin scanning.
         vm.selectFork(unichainFork);
         _requireChain(UNICHAIN_SEPOLIA);
+        _writeOut(".unichainStartBlock", vm.toString(block.number));
         address predictedVault = vm.computeCreateAddress(deployer, vm.getNonce(deployer));
 
         // 2. Lasna.
         vm.selectFork(lasnaFork);
         _requireChain(LASNA);
+        _writeOut(".lasnaStartBlock", vm.toString(block.number));
         bytes32[] memory pools = new bytes32[](1);
         pools[0] = PoolId.unwrap(poolId);
         vm.startBroadcast(deployer);
