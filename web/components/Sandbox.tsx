@@ -15,6 +15,7 @@ import {
 } from "@/lib/contracts";
 import { useTx } from "@/lib/useTx";
 import { TxNotice } from "./TxNotice";
+import { useOpenWalletPicker } from "./WalletPickerProvider";
 import { Button, Eyebrow } from "./ui";
 
 const MINT = parseUnits("100", 18);
@@ -29,6 +30,7 @@ export function Sandbox() {
   const connection = useConnection();
   const owner = connection.status === "connected" ? connection.address : undefined;
   const ready = owner !== undefined && connection.chainId === appChain.id;
+  const openPicker = useOpenWalletPicker();
   const write = useWriteContract();
   const tx = useTx();
   const queryClient = useQueryClient();
@@ -109,7 +111,18 @@ export function Sandbox() {
           </Button>
         </div>
       </div>
-      {!ready && <p className="mt-3 text-xs text-ink-3">Connect a wallet on Unichain Sepolia to use the sandbox.</p>}
+      {!ready && (
+        <p className="mt-3 text-xs text-ink-3">
+          {owner === undefined ? (
+            <button type="button" onClick={openPicker} className="text-ink-2 underline decoration-line-strong underline-offset-4 hover:text-ink">
+              Connect a wallet
+            </button>
+          ) : (
+            "Switch to Unichain Sepolia"
+          )}{" "}
+          to use the sandbox.
+        </p>
+      )}
       <TxNotice state={tx.state} onDismiss={tx.reset} />
     </section>
   );

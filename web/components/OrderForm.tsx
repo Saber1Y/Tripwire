@@ -3,7 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useId, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
-import { useConnection, useReadContracts, useWriteContract } from "wagmi";
+import { useConnection, useReadContracts, useSwitchChain, useWriteContract } from "wagmi";
 import { appChain } from "@/lib/chains";
 import { deployment, erc20Abi, tokenLabel, vaultAbi } from "@/lib/contracts";
 import type { PoolState } from "@/lib/indexer";
@@ -18,6 +18,7 @@ import {
 } from "@/lib/price";
 import { useTx } from "@/lib/useTx";
 import { TxNotice } from "./TxNotice";
+import { useOpenWalletPicker } from "./WalletPickerProvider";
 import { Button, Eyebrow, Panel, Segmented, cx } from "./ui";
 
 type Side = "sl" | "tp";
@@ -126,6 +127,8 @@ export function OrderForm({
 
   const queryClient = useQueryClient();
   const write = useWriteContract();
+  const openPicker = useOpenWalletPicker();
+  const switchChain = useSwitchChain();
   const tx = useTx();
 
   async function submit() {
@@ -159,9 +162,9 @@ export function OrderForm({
   }
 
   const action = !owner
-    ? { label: "Connect a wallet to arm", disabled: true }
+    ? { label: "Connect a wallet to arm", disabled: false }
     : !onChain
-      ? { label: "Switch to Unichain Sepolia", disabled: true }
+      ? { label: switchChain.isPending ? "Switching…" : "Switch to Unichain Sepolia", disabled: switchChain.isPending }
       : tx.busy
         ? { label: tx.state.status === "signing" ? "Confirm in wallet…" : "Waiting for Unichain…", disabled: true }
         : !complete || problem !== null
@@ -335,7 +338,9 @@ export function OrderForm({
         <Button
           variant="primary"
           disabled={action.disabled}
-          onClick={() => void submit()}
+          onClick={() =>
+            !owner ? openPicker() : !onChain ? switchChain.mutate({ chainId: appChain.id }) : void submit()
+          }
           className={cx("h-11 w-full", !action.disabled && "shadow-[0_0_24px_rgb(236_131_90/0.18)]")}
         >
           {action.label}

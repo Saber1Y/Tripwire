@@ -1,9 +1,10 @@
 "use client";
 
-import { ProviderNotFoundError, useConnect, useConnection, useDisconnect, useSwitchChain } from "wagmi";
+import { useConnection, useDisconnect, useSwitchChain } from "wagmi";
 import { appChain } from "@/lib/chains";
 import { useHealth } from "@/lib/indexer";
 import { Wordmark } from "./Brand";
+import { useOpenWalletPicker } from "./WalletPickerProvider";
 import { cx, shortHash } from "./ui";
 
 function ChainPulse({ name, head, lag }: { name: string; head: string | null; lag: number | null }) {
@@ -23,39 +24,19 @@ function ChainPulse({ name, head, lag }: { name: string; head: string | null; la
 
 function WalletButton() {
   const connection = useConnection();
-  const connect = useConnect();
+  const openPicker = useOpenWalletPicker();
   const disconnect = useDisconnect();
   const switchChain = useSwitchChain();
 
   if (connection.status !== "connected") {
-    const injected = connect.connectors[0];
-    // The generic injected connector exists even without an extension; surface its failure instead of doing nothing.
-    if (connect.error instanceof ProviderNotFoundError) {
-      return (
-        <a
-          href="https://metamask.io/download/"
-          target="_blank"
-          rel="noreferrer"
-          className="flex h-9 items-center rounded-lg border border-line-strong px-4 text-sm text-ink transition-colors hover:bg-raised"
-        >
-          No wallet found · install one
-        </a>
-      );
-    }
     return (
       <button
         type="button"
-        disabled={injected === undefined || connect.isPending || connection.status === "reconnecting"}
-        onClick={() => injected && connect.mutate({ connector: injected })}
-        className="h-9 rounded-lg bg-ink px-4 text-sm font-medium text-bg transition-[filter] duration-150 hover:brightness-90 disabled:opacity-60"
+        disabled={connection.status === "reconnecting" || connection.status === "connecting"}
+        onClick={openPicker}
+        className="h-9 rounded-lg bg-ink px-4 text-sm font-medium text-bg transition-[filter,transform] duration-150 hover:brightness-90 active:scale-[0.98] disabled:opacity-60"
       >
-        {connect.isPending
-          ? "Check your wallet…"
-          : injected === undefined
-            ? "No wallet found"
-            : connect.isError
-              ? "Connection failed · retry"
-              : "Connect wallet"}
+        {connection.status === "connecting" ? "Connecting…" : connection.status === "reconnecting" ? "Reconnecting…" : "Connect wallet"}
       </button>
     );
   }
