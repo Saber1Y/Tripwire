@@ -138,6 +138,16 @@ export class Store {
     return rows.map(fromRow);
   }
 
+  /** Most recent Tripwire events from both chains, newest first, for the activity feed. Swaps are excluded. */
+  recentActivity(limit: number): StoredEvent[] {
+    const rows = this.#db
+      .prepare(
+        "SELECT * FROM events WHERE name != 'Swap' ORDER BY block_ts DESC, chain, block DESC, log_index DESC LIMIT ?",
+      )
+      .all(limit) as unknown as EventRow[];
+    return rows.map(fromRow);
+  }
+
   /** Most recent swaps on the watched pool, oldest first, for the price chart. */
   recentSwaps(limit: number): StoredEvent[] {
     const rows = this.#db

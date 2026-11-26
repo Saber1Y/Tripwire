@@ -48,6 +48,21 @@ describe("Store", () => {
     store.close();
   });
 
+  it("lists activity newest first without swaps", () => {
+    const store = new Store(":memory:");
+    store.commitBatch("unichain", 10n, [
+      created({ tx: "0x01", blockTs: 100 }),
+      ev({ chain: "unichain", name: "Swap", orderId: null, tx: "0x02", blockTs: 150 }),
+      ev({ chain: "unichain", name: "OrderExecuted", tx: "0x03", blockTs: 200 }),
+    ]);
+    store.commitBatch("lasna", 10n, [ev({ chain: "lasna", name: "OrderTriggered", tx: "0x04", blockTs: 199 })]);
+    assert.deepEqual(
+      store.recentActivity(10).map((e) => e.name),
+      ["OrderExecuted", "OrderTriggered", "OrderCreated"],
+    );
+    store.close();
+  });
+
   it("rolls back a batch that fails part-way", () => {
     const store = new Store(":memory:");
     const bad = { ...created({ tx: "0x02" }), args: undefined as unknown as Record<string, string> };

@@ -111,6 +111,19 @@ async function route(deps: ApiDeps, req: IncomingMessage): Promise<unknown> {
       amount1: e.args["amount1"],
     }));
   }
+  if (path === "/api/activity") {
+    const limit = Number(url.searchParams.get("limit") ?? "50");
+    if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new HttpError(400, "limit must be 1-500");
+    return deps.store.recentActivity(limit).map((e) => ({
+      chain: e.chain,
+      name: e.name,
+      orderId: e.orderId,
+      tx: e.tx,
+      block: e.block,
+      blockTs: e.blockTs,
+      args: e.args,
+    }));
+  }
   if (path === "/api/balances") return balances(deps);
   if (path === "/api/pool") return pool(deps);
   throw new HttpError(404, "not found");
