@@ -130,6 +130,7 @@ It is real because the figures come from live testnet executions (see [Observed 
 
 The landing page shows the live pool, the latest real loop and live latency figures.
 The dashboard is a trading-terminal layout: chart with order wires, an order ticket, orders with per-attempt timelines, a cross-chain activity feed and a status bar with prepaid balances.
+A wallet picker lists every browser wallet the page detects (EIP-6963) and, when a WalletConnect project id is set, phone wallets via QR code.
 It is real because every number on both pages comes from the indexer or the chain; nothing is mocked.
 
 ## Architecture
@@ -205,6 +206,7 @@ flowchart TB
 | `components/OrderForm.tsx` | Order ticket with direction-aware presets, minimum-output maths, approve and arm |
 | `components/OrdersPanel.tsx` | Orders with per-attempt timelines and cancel |
 | `components/ActivityFeed.tsx` | Cross-chain event feed |
+| `components/WalletPicker.tsx` | Wallet dialog: detected browser wallets, WalletConnect, install hint |
 | `lib/price.ts` | Exact sqrtPriceX96 maths with bigint integer square root |
 
 ## Safety, enforced in code
@@ -286,6 +288,8 @@ The public Unichain RPC sometimes reports a head that the node serving the next 
 | Re-check, slippage refusal, re-arm, cancel-in-flight | Real in fork tests against the deployed PoolManager; not yet exercised live on testnet |
 | Indexer and full-loop timelines | Real - reproduces both live orders from an empty database |
 | Dashboard writes (mint, approve, arm, cancel, sandbox swaps) | Real calls, simulated against live contracts with `eth_call`; not yet signed through the UI with a browser wallet |
+| Wallet picker with browser wallets | Real - EIP-6963 discovery; verified in a browser without a wallet, not yet with one installed |
+| Phone wallets via WalletConnect | Wired, needs a WalletConnect project id to switch on; not yet tested |
 | Hosted frontend and indexer | Not yet established |
 | Sub-second split of the loop into legs | Not yet established; needs a low-latency RPC or Unichain flashblocks |
 | Security audit | Not yet established; a hackathon-level review only |
@@ -376,6 +380,8 @@ cd Tripwire && pnpm --dir web dev
 | --- | --- |
 | `NEXT_PUBLIC_INDEXER_URL` | Indexer API base URL (default `http://localhost:8787`) |
 | `NEXT_PUBLIC_UNICHAIN_SEPOLIA_RPC` | RPC used by the wallet client (default public endpoint) |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Free project id from cloud.reown.com; enables phone wallets via QR (optional) |
+| `NEXT_PUBLIC_SITE_URL` | Public site URL shown to phone wallets when pairing (default `http://localhost:3000`) |
 
 **Contract scripts**
 
