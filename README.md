@@ -289,7 +289,7 @@ The public Unichain RPC sometimes reports a head that the node serving the next 
 | Indexer and full-loop timelines | Real - reproduces both live orders from an empty database |
 | Dashboard writes (mint, approve, arm, cancel, sandbox swaps) | Real calls, simulated against live contracts with `eth_call`; not yet signed through the UI with a browser wallet |
 | Wallet picker with browser wallets | Real - EIP-6963 discovery; verified in a browser without a wallet, not yet with one installed |
-| Phone wallets via WalletConnect | Wired, needs a WalletConnect project id to switch on; not yet tested |
+| Phone wallets via WalletConnect | Real - QR pairing loads with the project id; not yet connected from a phone |
 | Hosted frontend and indexer | Not yet established |
 | Sub-second split of the loop into legs | Not yet established; needs a low-latency RPC or Unichain flashblocks |
 | Security audit | Not yet established; a hackathon-level review only |
