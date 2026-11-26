@@ -23,7 +23,7 @@ function Stat({ label, value, unit, hint }: { label: string; value: string; unit
 }
 
 const fmt = (d: Distribution, key: "median" | "p95" | "max", digits = 0) =>
-  d[key] === null ? "—" : (d[key] as number).toFixed(digits);
+  d[key] === null ? "-" : (d[key] as number).toFixed(digits);
 
 function Budget({
   label,
@@ -53,7 +53,7 @@ function Budget({
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
         <p className="font-mono text-sm tabular-nums">
-          {r === undefined ? "—" : r.toFixed(unit === "ETH" ? 5 : 3)} <span className="text-ink-3">{unit}</span>
+          {r === undefined ? "-" : r.toFixed(unit === "ETH" ? 5 : 3)} <span className="text-ink-3">{unit}</span>
         </p>
         {inDebt ? (
           <StatusChip label="In debt · paused" tone="bad" />
@@ -95,7 +95,7 @@ export function SystemPanel() {
           <p className="mt-4 text-xs leading-relaxed text-ink-3">
             Wall clock ≈{" "}
             <span className="font-mono text-ink-2">
-              {l.wallMsApprox.median === null ? "—" : `${(l.wallMsApprox.median / 1000).toFixed(2)} s`}
+              {l.wallMsApprox.median === null ? "-" : `${(l.wallMsApprox.median / 1000).toFixed(2)} s`}
             </span>{" "}
             median over {l.wallMsApprox.count} live {l.wallMsApprox.count === 1 ? "loop" : "loops"}, ± about half a second of RPC jitter. Lasna and Unichain stamp
             blocks differently, so the loop is not split into legs: those numbers would be noise.

@@ -5,12 +5,12 @@
  * Status hues are the dataviz reference status steps; they always travel with a text label.
  */
 @theme {
-  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
 
-  --color-bg: #0b0c0e;
-  --color-panel: #121417;
-  --color-raised: #181b1f;
+  --color-bg: #0a0b0d;
+  --color-panel: #101215;
+  --color-raised: #171a1e;
   --color-line: rgb(255 255 255 / 0.08);
   --color-line-strong: rgb(255 255 255 / 0.14);
   --color-grid: #22252a;
@@ -41,7 +41,12 @@ body {
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  font-feature-settings: "ss01", "tnum";
+}
+
+/* Every number on the page lines up in columns. */
+.tabular,
+.font-mono {
+  font-variant-numeric: tabular-nums;
 }
 
 ::selection {

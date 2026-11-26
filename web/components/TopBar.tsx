@@ -3,6 +3,7 @@
 import { ProviderNotFoundError, useConnect, useConnection, useDisconnect, useSwitchChain } from "wagmi";
 import { appChain } from "@/lib/chains";
 import { useHealth } from "@/lib/indexer";
+import { Wordmark } from "./Brand";
 import { cx, shortHash } from "./ui";
 
 function ChainPulse({ name, head, lag }: { name: string; head: string | null; lag: number | null }) {
@@ -14,7 +15,7 @@ function ChainPulse({ name, head, lag }: { name: string; head: string | null; la
         className={cx("size-1.5 rounded-full", healthy ? "bg-good breathe" : lag === null ? "bg-ink-3" : "bg-pending")}
       />
       <span className="text-ink-2">{name}</span>
-      <span className="tabular-nums">{head === null ? "—" : `#${Number(head).toLocaleString("en-US")}`}</span>
+      <span className="tabular-nums">{head === null ? "-" : `#${Number(head).toLocaleString("en-US")}`}</span>
       {lag !== null && lag > 3 && <span className="text-pending">{lag} behind</span>}
     </div>
   );
@@ -93,17 +94,11 @@ export function TopBar() {
   const lasna = chain("lasna");
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-bg/85 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-[1240px] items-center justify-between gap-4 px-4 md:px-6">
+    <header className="sticky top-0 z-20 border-b border-line bg-bg/90 backdrop-blur-md">
+      <div className="flex h-12 items-center justify-between gap-4 px-4">
         <div className="flex items-center gap-6">
-          <a href="#" className="group flex items-center gap-2.5" aria-label="Tripwire home">
-            <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden>
-              <line x1="1" y1="11" x2="21" y2="11" stroke="var(--color-wire)" strokeWidth="1.5" strokeLinecap="round" />
-              <circle cx="11" cy="11" r="3" fill="var(--color-bg)" stroke="var(--color-wire)" strokeWidth="1.5" />
-            </svg>
-            <span className="font-mono text-[13px] tracking-[0.22em] text-ink">TRIPWIRE</span>
-          </a>
-          <div className="hidden items-center gap-5 md:flex">
+          <Wordmark />
+          <div className="hidden items-center gap-5 border-l border-line pl-6 md:flex">
             {health.isError ? (
               <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-bad">Indexer offline</span>
             ) : (

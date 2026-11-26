@@ -32,6 +32,16 @@ export interface PoolState {
   price: number;
 }
 
+export interface ActivityEvent {
+  chain: "unichain" | "lasna";
+  name: string;
+  orderId: number | null;
+  tx: string;
+  block: number;
+  blockTs: number;
+  args: Record<string, string | boolean | number>;
+}
+
 export interface Balances {
   vault: { reserves: string; debt: string };
   reactive: { reserves: string; debt: string };
@@ -61,6 +71,8 @@ export const useSwaps = (limit = 240) =>
   useQuery({ queryKey: ["swaps", limit], queryFn: () => get<SwapPoint[]>(`/api/swaps?limit=${limit}`), ...live });
 export const useLatency = () =>
   useQuery({ queryKey: ["latency"], queryFn: () => get<LatencySummary & { pollMs: number }>("/api/latency"), ...live });
+export const useActivity = (limit = 60) =>
+  useQuery({ queryKey: ["activity", limit], queryFn: () => get<ActivityEvent[]>(`/api/activity?limit=${limit}`), ...live });
 export const useBalances = () =>
   useQuery({ queryKey: ["balances"], queryFn: () => get<Balances>("/api/balances"), refetchInterval: 10_000 });
 export const useOrders = (owner?: string) =>

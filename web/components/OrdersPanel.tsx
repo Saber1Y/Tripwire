@@ -179,7 +179,7 @@ export function OrdersPanel({ orders, loading, error }: { orders: readonly Order
 
   return (
     <Panel
-      title="Tripwires"
+      title={showMine ? "Your orders" : "All orders"}
       aside={
         owner !== undefined ? (
           <div className="flex gap-1 font-mono text-[10.5px] uppercase tracking-[0.12em]">

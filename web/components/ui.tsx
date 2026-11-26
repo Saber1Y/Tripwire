@@ -20,6 +20,7 @@ export function Eyebrow({ children, className }: { children: ReactNode; classNam
   );
 }
 
+/** A flat, line-separated section of the terminal. Elevation is reserved for things that float. */
 export function Panel({
   title,
   aside,
@@ -32,9 +33,9 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section className={cx("min-w-0 rounded-xl border border-line bg-panel", className)}>
+    <section className={cx("min-w-0", className)}>
       <header className="flex min-h-11 items-center justify-between gap-3 border-b border-line px-4">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-2">{title}</h2>
+        <h2 className="text-[13px] font-medium text-ink">{title}</h2>
         {aside}
       </header>
       <div className="p-4">{children}</div>

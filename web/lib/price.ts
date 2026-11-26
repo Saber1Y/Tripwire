@@ -36,7 +36,7 @@ export function sqrtX96ToPrice(sqrtPriceX96: bigint | string): number {
 }
 
 export function formatPrice(price: number): string {
-  if (!Number.isFinite(price)) return "–";
+  if (!Number.isFinite(price)) return "-";
   return price.toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 6 });
 }
 

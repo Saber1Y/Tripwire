@@ -317,7 +317,7 @@ export function OrderForm({
           <div className="flex justify-between gap-3">
             <span className="text-ink-3">You receive at least</span>
             <span className="font-mono tabular-nums">
-              {minOut === null ? "—" : `${fmtToken(minOut, 6)} ${outLabel}`}
+              {minOut === null ? "-" : `${fmtToken(minOut, 6)} ${outLabel}`}
             </span>
           </div>
           <p className="mt-1 text-xs leading-relaxed text-ink-3">

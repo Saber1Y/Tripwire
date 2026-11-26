@@ -50,6 +50,14 @@ const timeFmtFull = new Intl.DateTimeFormat("en-US", {
   hour12: false,
 });
 
+function relativeAge(ms: number): string {
+  const min = Math.round(ms / 60_000);
+  if (min < 90) return `${min} min`;
+  const h = Math.round(min / 60);
+  if (h < 36) return `${h} h`;
+  return `${Math.round(h / 24)} days`;
+}
+
 function useWidth<T extends HTMLElement>() {
   const ref = useRef<T>(null);
   const [width, setWidth] = useState(0);
@@ -69,12 +77,17 @@ export function PriceWire({
   orders,
   owner,
   draft = null,
+  showHeader = true,
+  fixedHeight,
 }: {
   swaps: readonly SwapPoint[];
   pool: PoolState | undefined;
   orders: readonly OrderView[];
   owner: string | undefined;
   draft?: DraftWire | null;
+  /** The landing hero renders its own heading, so it hides the price readout and key. */
+  showHeader?: boolean;
+  fixedHeight?: number;
 }) {
   const [box, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<Point | null>(null);
@@ -84,12 +97,18 @@ export function PriceWire({
     return () => clearInterval(id);
   }, []);
 
-  const height = width < 640 ? 240 : 320;
+  const height = fixedHeight ?? (width < 640 ? 240 : 320);
   const compact = width < 640;
 
-  const tMax = now;
-  const earliest = swaps[0] === undefined ? now : swaps[0].blockTs * 1000;
-  const tMin = Math.max(Math.min(earliest, now - MIN_SPAN_MS), now - MAX_SPAN_MS);
+  // Follow "now" while the pool is active. When the last swap is older than the window, show the last stretch of
+  // real activity instead of a flat line, and say how old it is.
+  const lastSwapT = swaps.at(-1) === undefined ? null : swaps.at(-1)!.blockTs * 1000;
+  const stale = lastSwapT !== null && now - lastSwapT > MAX_SPAN_MS;
+  const anchor = stale ? lastSwapT! : now;
+  const earliest = swaps[0] === undefined ? anchor : swaps[0].blockTs * 1000;
+  const tMinRaw = Math.max(Math.min(earliest, anchor - MIN_SPAN_MS), anchor - MAX_SPAN_MS);
+  const tMax = stale ? anchor + (anchor - tMinRaw) * 0.08 : now;
+  const tMin = tMinRaw;
 
   // Only what is inside the window, starting from the price that held when the window opened.
   const points = useMemo<Point[]>(() => {
@@ -97,9 +116,9 @@ export function PriceWire({
     const before = all.filter((pt) => pt.t < tMin).at(-1);
     const pts = [...(before ? [{ t: tMin, p: before.p }] : []), ...all.filter((pt) => pt.t >= tMin)];
     const current = pool === undefined ? pts.at(-1)?.p : pool.price;
-    if (current !== undefined) pts.push({ t: now, p: current });
+    if (current !== undefined) pts.push({ t: tMax, p: current });
     return pts;
-  }, [swaps, pool, now, tMin]);
+  }, [swaps, pool, tMin, tMax]);
 
   const wires = useMemo<Wire[]>(
     () =>
@@ -163,13 +182,14 @@ export function PriceWire({
 
   return (
     <div>
+      {showHeader && (
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div>
           <Eyebrow>
             Pool price · {tokenLabel[1]} per {tokenLabel[0]}
           </Eyebrow>
           <p className="mt-1.5 font-mono text-[40px] leading-none font-medium tracking-[-0.03em] tabular-nums md:text-[52px]">
-            {pool === undefined ? <span className="text-ink-3">—</span> : formatPrice(pool.price)}
+            {pool === undefined ? <span className="text-ink-3">-</span> : formatPrice(pool.price)}
           </p>
           <p className="mt-2 font-mono text-[11px] text-ink-3 tabular-nums">
             {pool === undefined ? "Waiting for the indexer…" : `tick ${pool.tick} · Uniswap V4 · 0.05% fee`}
@@ -190,8 +210,9 @@ export function PriceWire({
           </li>
         </ul>
       </div>
+      )}
 
-      <div ref={box} className="relative mt-5" style={{ height }}>
+      <div ref={box} className={showHeader ? "relative mt-5" : "relative"} style={{ height }}>
         {ready && (
           <svg width={width} height={height} role="img" aria-label={`Pool price over time, currently ${pool ? formatPrice(pool.price) : "unknown"}, with ${wires.length} open trigger wires`}>
             {yTicks.map((v) => (
@@ -301,6 +322,12 @@ export function PriceWire({
             <span className="text-ink-3">{timeFmtFull.format(hover.t)}</span>
             <span className="ml-2 tabular-nums">{formatPrice(hover.p)}</span>
           </div>
+        )}
+
+        {ready && stale && lastSwapT !== null && (
+          <p className="pointer-events-none absolute top-0 right-0 rounded-md bg-raised px-2 py-1 font-mono text-[10.5px] text-ink-2">
+            last swap {relativeAge(now - lastSwapT)} ago
+          </p>
         )}
 
         {ready && empty && (

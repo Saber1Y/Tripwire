@@ -88,7 +88,7 @@ export function Sandbox() {
   }
 
   return (
-    <section className="rounded-xl border border-dashed border-line-strong p-4">
+    <section className="border-t border-line p-4">
       <div className="grid gap-4">
         <div>
           <Eyebrow className="text-pending">Testnet sandbox</Eyebrow>
