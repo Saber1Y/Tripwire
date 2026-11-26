@@ -36,7 +36,7 @@ export function LandingFooter() {
           <div className="flex flex-wrap gap-x-3">
             <dt className="text-ink-3">Vault on Unichain Sepolia</dt>
             <dd>
-              <a href={explorer.unichain("address", deployment.vault)} target="_blank" rel="noreferrer" className="font-mono text-ink-2 hover:text-ink">
+              <a href={explorer.unichain("address", deployment.vault)} target="_blank" rel="noreferrer" className="font-mono break-all text-ink-2 hover:text-ink">
                 {deployment.vault}
               </a>
             </dd>
@@ -44,7 +44,7 @@ export function LandingFooter() {
           <div className="flex flex-wrap gap-x-3">
             <dt className="text-ink-3">Reactive contract on Lasna</dt>
             <dd>
-              <a href={explorer.lasna("address", deployment.reactive)} target="_blank" rel="noreferrer" className="font-mono text-ink-2 hover:text-ink">
+              <a href={explorer.lasna("address", deployment.reactive)} target="_blank" rel="noreferrer" className="font-mono break-all text-ink-2 hover:text-ink">
                 {deployment.reactive}
               </a>
             </dd>
