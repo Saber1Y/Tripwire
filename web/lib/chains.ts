@@ -15,7 +15,9 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
  * via a QR code when a project id is configured.
  */
 const connectors: CreateConnectorFn[] = [injected()];
-if (WALLETCONNECT_PROJECT_ID !== "") {
+// Browser only: WalletConnect opens IndexedDB storage when it initialises, which does not exist during server
+// prerendering, and creating it there also initialises its core once per render worker.
+if (WALLETCONNECT_PROJECT_ID !== "" && typeof window !== "undefined") {
   connectors.push(
     walletConnect({
       projectId: WALLETCONNECT_PROJECT_ID,

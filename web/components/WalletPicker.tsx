@@ -71,6 +71,10 @@ export function WalletPicker({ open, onClose }: { open: boolean; onClose: () => 
       aria-labelledby="wallet-title"
       className="m-auto w-[min(420px,calc(100vw-2rem))] rounded-2xl border border-line-strong bg-panel p-0 text-ink shadow-[0_30px_80px_-20px_rgb(0_0_0/0.7)] backdrop:bg-black/60 backdrop:backdrop-blur-[2px]"
     >
+      {/* Contents render only while open: the connector list exists only in the browser, so rendering it closed
+          would make the server and client markup differ. */}
+      {open && (
+        <>
       <div className="flex items-center justify-between border-b border-line px-5 py-4">
         <h2 id="wallet-title" className="text-base font-medium">
           Connect a wallet
@@ -146,6 +150,8 @@ export function WalletPicker({ open, onClose }: { open: boolean; onClose: () => 
       <p className="border-t border-line px-5 py-3 text-xs leading-relaxed text-ink-3">
         Tripwire runs on Unichain Sepolia (chain {appChain.id}). Your wallet will be asked to add or switch to it.
       </p>
+        </>
+      )}
     </dialog>
   );
 }
