@@ -244,8 +244,10 @@ On Unichain the callback proxy delivers `execute` to the vault, which swaps thro
 | Test tokens TKN0 / TKN1 | Unichain Sepolia | `0xde609E52D9164C227D4F174D6260289bc3E62eC2` / `0xf23147Df55089eA6bA87BF24bb4eEE6f7Cea182b` |
 
 **Observed latency.**
-Both live orders executed 2 Unichain blocks (2 seconds) after the swap that crossed them, and order #2 measured about 1.6 seconds wall clock.
+Across 60 live loops (57 orders), every callback reached the vault 1 to 3 Unichain blocks after the swap that crossed it: median 2 blocks, p95 2 blocks, 56 of 60 in exactly 2.
+The same-RPC wall clock measured median 2.0 seconds and p95 2.8 seconds over the 58 loops the indexer saw live.
 The Phase 0 probe measured 10 loops at median 2 seconds and p95 3 seconds.
+Full results, including the live edge cases, are in `docs/phase5-results.md`.
 
 | Order | Origin swap (Unichain) | Reaction (Lasna) | Execution (Unichain) |
 | --- | --- | --- | --- |
@@ -285,7 +287,8 @@ The public Unichain RPC sometimes reports a head that the node serving the next 
 | --- | --- |
 | Vault and reactive contract deployed and bound | Real - addresses above, verified on-chain |
 | Stop-loss executed end to end on testnet | Real - orders #1 and #2, transactions above |
-| Re-check, slippage refusal, re-arm, cancel-in-flight | Real in fork tests against the deployed PoolManager; not yet exercised live on testnet |
+| Re-check, slippage refusal, re-arm, cancel-in-flight | Real - in fork tests and live on testnet (orders #4 to #7, see `docs/phase5-results.md`) |
+| Load test | Real - 60 live loops, 55 executions plus 5 deliberate refusals, all with on-chain outcomes |
 | Indexer and full-loop timelines | Real - reproduces both live orders from an empty database |
 | Dashboard writes (mint, approve, arm, cancel, sandbox swaps) | Real calls, simulated against live contracts with `eth_call`; not yet signed through the UI with a browser wallet |
 | Wallet picker with browser wallets | Real - EIP-6963 discovery; verified in a browser without a wallet, not yet with one installed |
@@ -295,7 +298,7 @@ The public Unichain RPC sometimes reports a head that the node serving the next 
 | Security audit | Not yet established; a hackathon-level review only |
 | Mainnet | Not yet established |
 
-The remaining gaps are deliberate: a wallet-signed run through the dashboard and a load test of about 50 loops are the next steps, and both need a funded browser wallet.
+The remaining gaps are a wallet-signed run through the dashboard, which needs a funded browser wallet, and hosting.
 
 ## Tests
 
@@ -359,7 +362,7 @@ cd Tripwire && pnpm --dir web dev
 3. Choose *Stop-loss*, sell TKN0, click the *-1%* preset and arm it; the wire appears on the chart.
 4. Click *Push price down*; the wire turns to *Firing*, then a green fill marker appears.
 5. Expand the order to see the swap, the Reactive transaction and the execution, each linked to its explorer, with the loop in blocks.
-6. From the command line, `DEMO_ACTION=cycle forge script script/demo/TripwireDemo.s.sol ...` runs the same loop without the UI.
+6. From the command line, `DEMO_ACTION=cycle forge script script/demo/TripwireDemo.s.sol ...` runs the same loop without the UI, and `scripts/load-test.sh edge` or `scripts/load-test.sh load 50` replays the live edge cases or a batch of loops.
 
 ## Configuration
 
@@ -437,7 +440,7 @@ Unichain for Unichain Sepolia.
 
 ### Roadmap
 
-A wallet-signed run through the dashboard and a load test of about 50 loops for tighter percentiles.
+A wallet-signed run through the dashboard.
 A cross-chain hedge leg on Base Sepolia from the same reactive contract.
 Sub-second leg timing via a low-latency RPC or Unichain flashblocks.
 Hosted indexer and frontend, then an external audit before any mainnet use.
